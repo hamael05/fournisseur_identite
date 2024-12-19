@@ -31,7 +31,12 @@ class TentativeMdpFailed
     // Getters and Setters
     public function getId(): int { return $this->id; }
     public function getNbTentativeRestant(): int { return $this->nbTentativeRestant; }
-    public function setNbTentativeRestant(int $nb): void { $this->nbTentativeRestant = $nb;  }
+    public function setNbTentativeRestant(int $nb): void { 
+        if($nb == -1){
+            $nb = self::$defaultNbTentativeRestant;
+        }
+        $this->nbTentativeRestant = $nb;  
+    }
     public function getUtilisateur(): Utilisateur { return $this->utilisateur; }
     public function setUtilisateur(Utilisateur $utilisateur): void { $this->utilisateur = $utilisateur; }
 

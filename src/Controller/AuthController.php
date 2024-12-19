@@ -131,7 +131,7 @@ class AuthController extends AbstractController
             return new JsonResponse([
                 'status' => 'success',
                 'data' => [
-                    'message' => 'Veuillez vérifier votre e-mail pour confirmer votre inscription.'
+                    'message' => 'Veuillez vérifier votre e-mail pour voir votre pin.'
                 ]
             ], 200);
 
@@ -230,6 +230,14 @@ class AuthController extends AbstractController
     
                     }
                 }
+                else {
+                    return new JsonResponse([
+                        'status' => 'success',
+                        'data' => [
+                            'message' => 'you are connected.'
+                        ]
+                    ], 200);
+                }
             }
 
 
@@ -273,6 +281,46 @@ class AuthController extends AbstractController
             ], 200);
 
         }
+        catch (\Exception $e) {
+            // Gestion des erreurs
+            return new JsonResponse([
+                'status' => 'error',
+                'data' => null,
+                'error' => [
+                    'code' => 500,
+                    'message' => $e->getMessage()
+                ]
+            ], 500);
+        }
+    }
+
+    #[Route('/reinitialiser/{id_tentative}', name: 'reinitialiser', methods: ['GET'])]
+    public function reinitialiser (string $id_tentative) {
+        try{
+            $tentative = $this->entityManager->getRepository(TentativeMdpFailed::class)->findOneBy(['id' => $id_tentative]);
+            $tentative->setNbTentativeRestant(-1);
+            $this->entityManager->persist($tentative);
+            $this->entityManager->flush();
+            return new JsonResponse([
+                'status' => 'success',
+                'data' => [
+                    'message' => 'Veuillez retenter pour confirmer votre authentification.'
+                ]
+            ], 200);
+        } catch (\Exception $e) {
+            // Gestion des erreurs
+            return new JsonResponse([
+                'status' => 'error',
+                'data' => null,
+                'error' => [
+                    'code' => 500,
+                    'message' => $e->getMessage()
+                ]
+            ], 500);
+        }
+        
+        
+
     }
 
 
