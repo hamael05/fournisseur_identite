@@ -191,7 +191,7 @@ class InscriptionController extends AbstractController
             
 
              // Supprimer le jeton correspondant à l'inscription
-            $this->entityManager->persist($token);
+            $this->entityManager->remove($token);
             $this->entityManager->flush();
             
 

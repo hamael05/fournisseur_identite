@@ -118,11 +118,11 @@ class AuthController extends AbstractController
             // si le mot de passe est correcte
             // generer un pin 
             $pin = new Pin($data['duree_pin'],$utilisateur);
-
-            //inserer le Pin dans la base
             $this->entityManager->persist($pin);
-
-            //enregistrer
+            
+            $tentative = new TentativePinFailed($pin, $utilisateur);
+            $this->entityManager->persist($tentative);
+            
             $this->entityManager->flush();
 
             //envoyer email
@@ -153,98 +153,69 @@ class AuthController extends AbstractController
     }  
 
     #[Route('/confirmPin', name: 'confirmPin', methods: ['POST'])]
-    public function confirmPin(Request $request){
-        try{
-            $data = json_decode($request->getContent(),true);
+    public function confirmPin(Request $request): JsonResponse
+    {
+        try {
+            $data = json_decode($request->getContent(), true);
 
-            if(!isset($data['pin'], $data['id_utilisateur'])){
+            if (!isset($data['pin'], $data['id_utilisateur'])) {
                 return new JsonResponse([
-                    'status'=>'error',
-                    'data'=>null,
-                    'error'=>[
-                        'code'=>400,
-                        'message'=> 'données manquantes'
+                    'status' => 'error',
+                    'data' => null,
+                    'error' => [
+                        'code' => 400,
+                        'message' => 'Données manquantes'
                     ]
-                    ],400);
+                ], 400);
             }
 
-            $pin = $this->entityManager->getRepository(Pin::class)->findOneBy(['pin' => $data['pin']]);
+            $pin = $this->entityManager->getRepository(Pin::class)->findOneBy(['utilisateur' => $data['id_utilisateur']]);
             $utilisateur = $this->entityManager->getRepository(Utilisateur::class)->findOneBy(['id' => $data['id_utilisateur']]);
-
-            // misy lay pin
-            if($pin){
-                // tsy mitovy amlay id_user nanatsofoka lay id_pin natsofoka
-                if($pin->getUtilisateur()->getId() != $data['id_utilisateur']){
-
-                    $tentative = $this->entityManager->getRepository(TentativePinFailed::class)->findOneBy(['utilisateur' => $utilisateur->getId()]);
-
-                    if(!$tentative){
-                        $tentative = new TentativePinFailed($pin,$utilisateur);
-                        $this->entityManager->persist($tentative);
-                        $this->entityManager->flush();
-                        return new JsonResponse([
-                            'status'=>'error',
-                            'data'=>null,
-                            'error'=>[
-                                'code'=>400,
-                                'message'=> 'PIN incorrect, il vous reste '.$tentative->getNbTentativeRestant().' tentative(s)',
-                            ]
-                            ],400);
-                    }
-                    // si tentative restante >0,nalana dia modifier-na ny any anaty base
-                    if($tentative->getNbTentativeRestant()>0){
+            $tentative = $this->entityManager->getRepository(TentativePinFailed::class)->findOneBy(['utilisateur' => $utilisateur->getId()]);
+            
+            // Vérification du pin
+            
+                if ($tentative->getPin()->getPin() != $data['pin']) {
+                    if ($tentative->getNbTentativeRestant() > 0) {
                         $tentative->moinsUnTentativeRestant();
-    
                         $this->entityManager->persist($tentative);
                         $this->entityManager->flush();
     
-                         return new JsonResponse([
-                        'status'=>'error',
-                        'data'=>null,
-                        'error'=>[
-                            'code'=>400,
-                            'message'=> 'PIN incorrect, il vous reste '.$tentative->getNbTentativeRestant().' tentative(s)',
-                        ]
-                        ],400);
-                    }
-                    //tentative ==0
-                    else
-                    {
-                        //envoyer mail generer new pin
-
-                        $this->entityManager->remove($pin);
-                        $this->emailService->sendNewPin($tentative); // Appel correct de la méthode sendEmail
-
-                        $this->entityManager->remove($tentative);
-                        $this->entityManager->flush();
-
                         return new JsonResponse([
-                            'status'=>'error',
-                            'data'=>null,
-                            'error'=>[
-                                'code'=>400,
-                                'message'=> 'Nombre de tentative de connection limite atteinte. Veuillez vérifier votre e-mail pour reinitialiser les tentatives',
+                            'status' => 'error',
+                            'data' => null,
+                            'error' => [
+                                'code' => 400,
+                                'message' => 'PIN incorrect, il vous reste ' . $tentative->getNbTentativeRestant() . ' tentative(s).'
                             ]
-                            ],400);
-    
-    
+                        ], 400);
                     }
-                }
-                else {
+    
+                    // Tentatives épuisées
+                    $this->entityManager->remove($pin);
+                    $this->emailService->sendNewPin($tentative);
+                    $this->entityManager->remove($tentative);
+                    $this->entityManager->flush();
+    
                     return new JsonResponse([
-                        'status' => 'success',
-                        'data' => [
-                            'message' => 'you are connected.'
+                        'status' => 'error',
+                        'data' => null,
+                        'error' => [
+                            'code' => 400,
+                            'message' => 'Nombre de tentatives atteint. Veuillez vérifier votre e-mail pour réinitialiser les tentatives.'
                         ]
-                    ], 200);
-                }
+                    ], 400);
+            
             }
 
-
-
-        }
-        catch (\Exception $e) {
-            // Gestion des erreurs
+            // Cas succès
+            return new JsonResponse([
+                'status' => 'success',
+                'data' => [
+                    'message' => 'Vous êtes connecté.'
+                ]
+            ], 200);
+        } catch (\Exception $e) {
             return new JsonResponse([
                 'status' => 'error',
                 'data' => null,
@@ -253,8 +224,9 @@ class AuthController extends AbstractController
                     'message' => $e->getMessage()
                 ]
             ], 500);
-        }  
+        }
     }
+
 
     #[Route('/sendNewPin/{id_utilisateur}', name: 'sendNewPin', methods: ['GET'])]
     public function sendNewPin(string $id_utilisateur){
@@ -263,11 +235,11 @@ class AuthController extends AbstractController
 
             // generer un pin 
             $pin = new Pin(-1,$utilisateur);
-
-            //inserer le Pin dans la base
             $this->entityManager->persist($pin);
 
-            //enregistrer
+            $tentative = new TentativePinFailed($pin, $utilisateur);
+            $this->entityManager->persist($tentative);
+
             $this->entityManager->flush();
 
             //envoyer email
