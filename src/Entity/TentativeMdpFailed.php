@@ -2,8 +2,10 @@
 
 namespace App\Entity;
 
+use App\Repository\TentativeMdpFailedRepository;
 use Doctrine\ORM\Mapping as ORM;
-#[ORM\Entity]
+
+#[ORM\Entity(repositoryClass: TentativeMdpFailedRepository::class)]
 #[ORM\Table(name: "tentative_mdp_failed")]
 class TentativeMdpFailed
 {
@@ -15,9 +17,6 @@ class TentativeMdpFailed
     #[ORM\Column(name:"nb_tentative_restant",type: "integer")]
     private int $nbTentativeRestant; //--
 
-    #[ORM\Column(name:"is_locked",type: "boolean")]
-    private bool $isLocked;
-
     #[ORM\ManyToOne(targetEntity: Utilisateur::class)]
     #[ORM\JoinColumn(nullable: false)]
     private Utilisateur $utilisateur;
@@ -26,20 +25,18 @@ class TentativeMdpFailed
     public function __construct(Utilisateur $user)
     {
             $this->utilisateur = $user;
-            $this->compteurTentatice = self::$defaultNbTentativeRestant;
+            $this->compteurTentatice = self::$defaultNbTentativeRestant-1;
             $this->isLocked = false;
     }
 
     // Getters and Setters
     public function getId(): int { return $this->id; }
     public function getNbTentativeRestant(): int { return $this->nbTentativeRestant; }
-    public function setNbTentativeRestant(int $nbTentativeRestant): void { $this->nbTentativeRestant = $nbTentativeRestant; }
-    public function getIsLocked(): bool { return $this->isLocked; }
-    public function setIsLocked(bool $isLocked): void { $this->isLocked = $isLocked; }
+    public function setNbTentativeRestant(int $nb): void { $this->nbTentativeRestant = $nb;  }
     public function getUtilisateur(): Utilisateur { return $this->utilisateur; }
     public function setUtilisateur(Utilisateur $utilisateur): void { $this->utilisateur = $utilisateur; }
 
+    public function moinsUnTentativeRestant(): void { $this->setNbTentativeRestant($this->nbTentativeRestant - 1); }
 
-    
 
 }

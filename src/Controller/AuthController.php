@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Pin;
+use App\Entity\TentativeMdpFailed;
 use App\Entity\Utilisateur;
 use App\Service\AuthService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -62,24 +63,61 @@ class AuthController extends AbstractController
             // verifier que le mot de passe est correct
             //si mdp incorrect
             if(!$this->authService->checkLogin($utilisateur,$data['mdp'])){
-                return new JsonResponse([
+                // return new JsonResponse([
+                //     'status'=>'error',
+                //     'data'=>null,
+                //     'error'=>[
+                //         'code'=>400,
+                //         'message'=> ''
+                //     ]
+                //     ],400);
+
+                
+                //verifier si il y a déjà une tentative_mdp_failed associé à l'user (get la tentative)
+                $tentative = $this->entityManager->getRepository(TentativeMdpFailed::class)->findOneBy(['id_utilisateur' => $utilisateur->getId()]);
+                if(!$tentative){
+                    $tentative = new TentativeMdpFailed($utilisateur);
+                    $this->entityManager->persist($tentative);
+                    return new JsonResponse([
+                        'status'=>'error',
+                        'data'=>null,
+                        'error'=>[
+                            'code'=>400,
+                            'message'=> 'mot de passe incorrect, il vous reste '.$tentative->getNbTentativeRestant().' tentative(s)',
+                        ]
+                        ],400);
+                }
+                // si tentative restante >0,nalana dia modifier-na ny any anaty base
+                if($tentative->getNbTentativeRestant()>0){
+                    $tentative->moinsUnTentativeRestant();
+
+                    $this->entityManager->persist($tentative);
+
+                     return new JsonResponse([
                     'status'=>'error',
                     'data'=>null,
                     'error'=>[
                         'code'=>400,
-                        'message'=> ''
+                        'message'=> 'mot de passe incorrect, il vous reste '.$tentative->getNbTentativeRestant().' tentative(s)',
                     ]
                     ],400);
+                }
+                //tentative ==0
+                else
+                {
+                    //envoyer mail reinitialisation
+                    $this->emailService->sendReinitialisationTentativeMdpEmail($tentative); // Appel correct de la méthode sendEmail
+                    return new JsonResponse([
+                        'status'=>'error',
+                        'data'=>null,
+                        'error'=>[
+                            'code'=>400,
+                            'message'=> 'Nombre de tentative de connection limite atteinte. Veuillez vérifier votre e-mail pour reinitialiser les tentatives',
+                        ]
+                        ],400);
 
-                //verifier si il y a déjà une tentative_mdp_failed associé à l'user (get la tentative)
-                // si tentative restante >  => analana
-                // else 
-                //atao locked, mandefa message de reinitialisation
 
-                //raha mbola tsisy tentative associé
-                //mamorona
-                //analana 1 ny tentative
-                //update
+                }
             }
 
             // si le mot de passe est correcte
