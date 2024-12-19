@@ -16,16 +16,9 @@ class AuthService
         $this->utilisateurRepository = $utilisateurRepository;
     }
 
-    public function checkLogin(string $mail, string $password): bool
+    public  function checkLogin(Utilisateur $utilisateur, $plainPassword ): bool
     {
-        // Recherche de l'utilisateur par son email
-        $utilisateur = $this->utilisateurRepository->findOneBy(['mail' => $mail]);
-
-        if (!$utilisateur) {
-            return false;
-        }
-
-       if(HasherUtil::verifyPassword($password,$utilisateur->getMdp()))
+       if(HasherUtil::verifyPassword($plainPassword,$utilisateur->getMdp()))
        {
             return true;
        }
