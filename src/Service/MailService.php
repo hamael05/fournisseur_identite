@@ -3,6 +3,7 @@ namespace App\Service;
 
 use App\Entity\JetonInscription;
 use App\Entity\TentativeMdpFailed;
+use App\Entity\TentativePinFailed;
 use App\Entity\Utilisateur;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
@@ -128,6 +129,44 @@ class MailService
         try {
             // Créer l'email avec PHPMailer
             $this->createMailerFromTentativeMdpFailed($tentative);
+            
+            // Envoi de l'email via PHPMailer
+            $this->mailer->send();
+            echo 'Message envoyé avec succès';
+            return true;
+        } catch (Exception $e) {
+            echo 'Le message n\'a pas pu être envoyé. Erreur : ' . $this->mailer->ErrorInfo;
+            return false;
+        }
+    }
+
+    // pour tentative pin : reinitialisation
+    public function createMailerFromTentativePinFailed(TentativePinFailed $tentative): PHPMailer
+    {
+        // Configuration de PHPMailer
+        $this->mailer->isSMTP();                            // Envoi via SMTP
+        $this->mailer->Host = 'smtp.gmail.com';             // Serveur SMTP de Gmail
+        $this->mailer->SMTPAuth = true;                     // Authentification SMTP
+        $this->mailer->Username = self::$defaultMailAdress;     // Votre email
+        $this->mailer->Password = self::$defaultMailerPassword;   // Votre mot de passe d'application
+        $this->mailer->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS; // Chiffrement TLS
+        $this->mailer->Port = 587;                          // Port SMTP (587 pour TLS)
+        
+        // Définir l'expéditeur et le destinataire
+        $this->mailer->setFrom(self::$defaultMailAdress, self::$defaultMailerName);
+        $this->mailer->addAddress($tentative->getUtilisateur()->getMail()); // Ajouter le destinataire
+        $this->mailer->isHTML(true);                          // Format HTML
+        $this->mailer->Subject = 'Genrer un nouveau pin '; // Sujet de l'email
+        $this->mailer->Body    = 'Cliquez sur ce lien pour generer un nouveau pin : <a href="http://localhost:8000/sendNewPin/' .$tentative->getUtilisateur()->getId(). '">Confirmer</a>'; // Corps de l'email avec lien
+        
+        return $this->mailer;
+    }
+
+    public function sendNewPin(TentativePinFailed $tentative): bool
+    {
+        try {
+            // Créer l'email avec PHPMailer
+            $this->createMailerFromTentativePinFailed($tentative);
             
             // Envoi de l'email via PHPMailer
             $this->mailer->send();

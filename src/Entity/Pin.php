@@ -32,7 +32,7 @@ class Pin
 
     public function __construct(int $duree , Utilisateur $user)
     {
-            if($duree == null){
+            if($duree == -1){
                 $duree = self::$defaultDureePin;
             }
             $this->expirationUtil = (new ExpirationUtil($duree));
