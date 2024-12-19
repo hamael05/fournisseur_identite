@@ -28,8 +28,11 @@ class Pin
 
     private static float $defaultDureePin = 10;
 
-    public function __construct(int $duree = self::$defaultDureePin, Utilisateur $user)
+    public function __construct(int $duree , Utilisateur $user)
     {
+            if($duree == null){
+                $duree = self::$defaultDureePin;
+            }
             $this->expirationUtil = (new ExpirationUtil($duree));
 
             $this->pin = PinGeneratorUtil::generatePin();
