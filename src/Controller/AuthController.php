@@ -2,7 +2,9 @@
 
 namespace App\Controller;
 
+use App\Entity\JetonAuthentification;
 use App\Entity\Pin;
+use App\Entity\Jeton;
 use App\Entity\TentativeMdpFailed;
 use App\Entity\TentativePinFailed;
 use App\Entity\Utilisateur;
@@ -241,10 +243,19 @@ class AuthController extends AbstractController
 
             //raha mbola tsy expiré lay pin
             // tokony mamorona token 
+            $jeton = new Jeton(-1);
+            $this->entityManager->persist($jeton);
+            $this->entityManager->flush();
+
+            $jeton_authentification = new JetonAuthentification($utilisateur,$jeton);
+            $this->entityManager->persist($jeton_authentification);
+            $this->entityManager->flush();
+
+            
             return new JsonResponse([
                 'status' => 'success',
                 'data' => [
-                    'message' => 'Vous êtes connecté.'
+                    'message' => 'Vous êtes connecté! Votre jeton a été créé!'
                 ]
             ], 200);
         } 
