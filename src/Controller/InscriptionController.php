@@ -100,7 +100,7 @@ class InscriptionController extends AbstractController
             //$mailer = $this->emailService->createMailerFromJetonInscription($jetonInscription);
     
             // Envoie l'e-mail
-            $this->emailService->sendEmail($jetonInscription); // Appel correct de la méthode sendEmail
+            $this->emailService->sendJetonInscriptionEmail($jetonInscription); // Appel correct de la méthode sendEmail
     
             // Réponse en cas de succès
             return new JsonResponse([
@@ -191,7 +191,7 @@ class InscriptionController extends AbstractController
             
 
              // Supprimer le jeton correspondant à l'inscription
-            $this->entityManager->persist($token);
+            $this->entityManager->remove($token);
             $this->entityManager->flush();
             
 
@@ -216,3 +216,4 @@ class InscriptionController extends AbstractController
 
     
 }
+?>
