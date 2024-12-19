@@ -53,3 +53,10 @@ d6f35b,127.0.0.1,POST,http://127.0.0.1:8000/inscription,1734580858,,200,request
 a7e111,127.0.0.1,GET,http://localhost:8000/confirm/eTgcNLNhwP0RdRndlXHbrc4LjJvJ6P1y,1734580899,,500,request
 09b573,127.0.0.1,POST,http://127.0.0.1:8000/inscription,1734581494,,200,request
 9099ec,127.0.0.1,GET,http://localhost:8000/confirm/fnv921AqtaNq4JSk5EEqBE4oFqykCeqv,1734581501,,200,request
+e91bef,127.0.0.1,POST,http://127.0.0.1:8000/inscription,1734583597,,409,request
+f2ca9b,127.0.0.1,POST,http://127.0.0.1:8000/inscription,1734583789,,409,request
+b80082,127.0.0.1,POST,http://127.0.0.1:8000/inscription,1734583810,,200,request
+e0c205,127.0.0.1,POST,http://127.0.0.1:8000/inscription,1734584018,,200,request
+e1da59,127.0.0.1,GET,http://localhost:8000/confirm/ozUnlsMQ6a5yPK6SLOx1T9CaDMZnvy7j,1734584768,,410,request
+1bf37b,127.0.0.1,POST,http://127.0.0.1:8000/inscription,1734584843,,200,request
+8866ab,127.0.0.1,GET,http://localhost:8000/confirm/Qb13L2W2LjoJ5BMgu2rPj7E1CYrNtOJD,1734584885,,410,request

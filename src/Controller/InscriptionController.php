@@ -155,6 +155,14 @@ class InscriptionController extends AbstractController
 
             // Vérifier si le jeton est expiré (méthode de l'entité JetonInscription)
             if ($jetonInscription->isExpired()) {
+                // Supprimer le jeton d'inscription après validation
+                $this->entityManager->remove($jetonInscription);
+                $this->entityManager->flush();
+                
+                // Supprimer le jeton correspondant à l'inscription
+                $this->entityManager->persist($token);
+                $this->entityManager->flush();
+
                 return new JsonResponse([
                     'status' => 'error',
                     'data' => null,

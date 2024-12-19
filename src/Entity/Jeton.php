@@ -21,7 +21,7 @@ class Jeton
     private ExpirationUtil $expirationUtil;
 
     
-    private static int $defaultDureeJeton = 10;
+    private static float $defaultDureeJeton = 0.00000001;
 
     public function __construct()
     {
