@@ -1,0 +1,70 @@
+CREATE TABLE utilisateur(
+   id SERIAL,
+   mail VARCHAR(255)  NOT NULL,
+   mdp VARCHAR(50)  NOT NULL,
+   nom VARCHAR(100)  NOT NULL,
+   date_naissance DATE NOT NULL,
+   PRIMARY KEY(id)
+);
+
+CREATE TABLE pin(
+   id SERIAL,
+   pin INTEGER NOT NULL,
+   date_insertion TIMESTAMP,
+   date_expiration TIMESTAMP NOT NULL,
+   PRIMARY KEY(id)
+);
+
+CREATE TABLE jeton(
+   id SERIAL,
+   jeton TEXT NOT NULL,
+   date_expiration TIMESTAMP NOT NULL,
+   date_insertion TIMESTAMP NOT NULL,
+   id_1 INTEGER NOT NULL,
+   PRIMARY KEY(id),
+   FOREIGN KEY(id_1) REFERENCES utilisateur(id)
+);
+
+CREATE TABLE tentative_mdp_failed(
+   id SERIAL,
+   compteur_tentative INTEGER NOT NULL,
+   date_derniere_tentative TIMESTAMP NOT NULL,
+   isLocked BOOLEAN NOT NULL,
+   unlock_time TIMESTAMP NOT NULL,
+   id_1 INTEGER NOT NULL,
+   PRIMARY KEY(id),
+   FOREIGN KEY(id_1) REFERENCES utilisateur(id)
+);
+
+CREATE TABLE tentative_pin_failed(
+   id SERIAL,
+   compteur_tentative INTEGER NOT NULL,
+   date_derniere_tentative TIMESTAMP NOT NULL,
+   isLocked BOOLEAN NOT NULL,
+   unlock_time TIMESTAMP NOT NULL,
+   id_1 INTEGER NOT NULL,
+   PRIMARY KEY(id),
+   FOREIGN KEY(id_1) REFERENCES utilisateur(id)
+);
+
+CREATE TABLE pin_authentification(
+   id SERIAL,
+   id_1 INTEGER NOT NULL,
+   id_2 INTEGER NOT NULL,
+   PRIMARY KEY(id),
+   UNIQUE(id_1),
+   FOREIGN KEY(id_1) REFERENCES pin(id),
+   FOREIGN KEY(id_2) REFERENCES utilisateur(id)
+);
+
+CREATE TABLE jeton_inscription(
+   id SERIAL,
+   mail VARCHAR(255)  NOT NULL,
+   mdp TEXT NOT NULL,
+   nom VARCHAR(100)  NOT NULL,
+   date_naissance DATE NOT NULL,
+   id_1 INTEGER NOT NULL,
+   PRIMARY KEY(id),
+   UNIQUE(id_1),
+   FOREIGN KEY(id_1) REFERENCES jeton(id)
+);
