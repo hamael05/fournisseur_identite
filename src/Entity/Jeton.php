@@ -21,12 +21,15 @@ class Jeton
     private ExpirationUtil $expirationUtil;
 
     
-    private static int $defaultDureeJeton = 10;
+    private static float $defaultDureeJeton = 1.5;
 
-    public function __construct()
+    public function __construct(float $duree)
     {
 
-        $this->expirationUtil = (new ExpirationUtil(self::$defaultDureeJeton));
+        if($duree == -1){
+            $duree = self::$defaultDureeJeton;
+        }
+        $this->expirationUtil = (new ExpirationUtil($duree));
         
         $this->jeton = TokenGeneratorUtil::generateToken();
     }

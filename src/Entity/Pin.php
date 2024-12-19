@@ -79,4 +79,9 @@ class Pin
         $this->utilisateur = $utilisateur;
         return $this;
     }
+
+    public function isExpired(): bool
+    {
+        return $this->getExpirationUtil()->getDateExpiration() < new \DateTime();
+    }
 }
