@@ -28,7 +28,7 @@ class Pin
 
     private static float $defaultDureePin = 10;
 
-    public function __construct(int $duree = $defaultDureePin)
+    public function __construct(int $duree = self::$defaultDureePin)
     {
             $this->expirationUtil = (new ExpirationUtil($duree));
 
