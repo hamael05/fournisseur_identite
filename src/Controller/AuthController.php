@@ -160,7 +160,7 @@ class AuthController extends AbstractController
         try {
             $data = json_decode($request->getContent(), true);
 
-            if (!isset($data['pin'], $data['id_utilisateur'])) {
+            if (!isset($data['pin'], $data['id_utilisateur'],$data['duree_jeton'])) {
                 return new JsonResponse([
                     'status' => 'error',
                     'data' => null,
@@ -243,7 +243,7 @@ class AuthController extends AbstractController
 
             //raha mbola tsy expiré lay pin
             // tokony mamorona token 
-            $jeton = new Jeton(-1);
+            $jeton = new Jeton($data['duree_jeton']);
             $this->entityManager->persist($jeton);
             $this->entityManager->flush();
 
