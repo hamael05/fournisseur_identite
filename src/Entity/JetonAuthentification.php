@@ -46,5 +46,20 @@ class JetonAuthentification
         return $this;
     }
 
+    public function getUtilisateur(): Utilisateur
+    {
+        return $this->utilisateur;
+    }
+
+    public function setUtilisateur(Utilisateur $utilisateur): self
+    {
+        $this->utilisateur = $utilisateur;
+        return $this;
+    }
+
+    public function isExpired(): bool
+    {
+        return $this->getJeton()->getExpirationUtil()->getDateExpiration() < new \DateTime();
+    }
 
 }
