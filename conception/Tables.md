@@ -33,4 +33,9 @@
 - isLocked
 - unlock_time 
 
-
+# jeton_authentification
+- id_utilisateur
+- id_jeton
+- date_insertion
+- duree
+- date_expiration

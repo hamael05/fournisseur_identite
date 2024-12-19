@@ -2,7 +2,9 @@
 
 namespace App\Controller;
 
+use App\Entity\JetonAuthentification;
 use App\Entity\Pin;
+use App\Entity\Jeton;
 use App\Entity\TentativeMdpFailed;
 use App\Entity\TentativePinFailed;
 use App\Entity\Utilisateur;
@@ -81,7 +83,7 @@ class AuthController extends AbstractController
                         ]
                         ],400);
                 }
-                // si tentative restante >0,nalana dia modifier-na ny any anaty base
+                // si tentative mdp restante >0,nalana dia modifier-na ny any anaty base
                 if($tentative->getNbTentativeRestant()>0){
                     $tentative->moinsUnTentativeRestant();
 
@@ -158,7 +160,7 @@ class AuthController extends AbstractController
         try {
             $data = json_decode($request->getContent(), true);
 
-            if (!isset($data['pin'], $data['id_utilisateur'])) {
+            if (!isset($data['pin'], $data['id_utilisateur'],$data['duree_jeton'])) {
                 return new JsonResponse([
                     'status' => 'error',
                     'data' => null,
@@ -175,47 +177,89 @@ class AuthController extends AbstractController
             
             // Vérification du pin
             
-                if ($tentative->getPin()->getPin() != $data['pin']) {
-                    if ($tentative->getNbTentativeRestant() > 0) {
-                        $tentative->moinsUnTentativeRestant();
-                        $this->entityManager->persist($tentative);
-                        $this->entityManager->flush();
-    
-                        return new JsonResponse([
-                            'status' => 'error',
-                            'data' => null,
-                            'error' => [
-                                'code' => 400,
-                                'message' => 'PIN incorrect, il vous reste ' . $tentative->getNbTentativeRestant() . ' tentative(s).'
-                            ]
-                        ], 400);
-                    }
-    
-                    // Tentatives épuisées
-                    $this->entityManager->remove($pin);
-                    $this->emailService->sendNewPin($tentative);
-                    $this->entityManager->remove($tentative);
+            if ($tentative->getPin()->getPin() != $data['pin']) 
+            {
+                // mbola misy lay tentative
+                if ($tentative->getNbTentativeRestant() > 0) 
+                {
+                    // analana lay tentative
+                    $tentative->moinsUnTentativeRestant();
+                    $this->entityManager->persist($tentative);
                     $this->entityManager->flush();
-    
+
                     return new JsonResponse([
                         'status' => 'error',
                         'data' => null,
                         'error' => [
                             'code' => 400,
-                            'message' => 'Nombre de tentatives atteint. Veuillez vérifier votre e-mail pour réinitialiser les tentatives.'
+                            'message' => 'PIN incorrect, il vous reste ' . $tentative->getNbTentativeRestant() . ' tentative(s).'
                         ]
                     ], 400);
+                }
+
+                // Tentatives épuisées
+                // fafana tao anaty base lay pin
+                $this->entityManager->remove($pin);
+                //alefa mail lay pin vaovao
+                $this->emailService->sendNewPin($tentative);
+                //fafana lay tentative taloha
+                $this->entityManager->remove($tentative);
+        
+                $this->entityManager->flush();
+
+                return new JsonResponse([
+                    'status' => 'error',
+                    'data' => null,
+                    'error' => [
+                        'code' => 400,
+                        'message' => 'Nombre de tentatives atteint. Veuillez vérifier votre e-mail pour réinitialiser les tentatives.'
+                    ]
+                ], 400);
             
             }
 
-            // Cas succès
+            // Cas succès => ilay pin tokony natsofoka no natsofoka
+            // jerena hoe sao efa expiré lay pin
+            if($pin->isExpired())
+            {
+               // fafana lay pin
+               $this->entityManager->remove($pin);
+
+               //fafana lay tentative
+               $this->entityManager->remove($tentative);
+
+                
+                $this->entityManager->flush();
+
+                return new JsonResponse([
+                    'status' => 'error',
+                    'data' => null,
+                    'error' => [
+                        'code' => 400,
+                        'message' => 'Le PIN entré est expiré.Veuillez re-essayer de nous authentifier'
+                    ]
+                ], 500);
+            }
+
+            //raha mbola tsy expiré lay pin
+            // tokony mamorona token 
+            $jeton = new Jeton($data['duree_jeton']);
+            $this->entityManager->persist($jeton);
+            $this->entityManager->flush();
+
+            $jeton_authentification = new JetonAuthentification($utilisateur,$jeton);
+            $this->entityManager->persist($jeton_authentification);
+            $this->entityManager->flush();
+
+            
             return new JsonResponse([
                 'status' => 'success',
                 'data' => [
-                    'message' => 'Vous êtes connecté.'
+                    'message' => 'Vous êtes connecté! Votre jeton a été créé!'
                 ]
             ], 200);
-        } catch (\Exception $e) {
+        } 
+        catch (\Exception $e) {
             return new JsonResponse([
                 'status' => 'error',
                 'data' => null,
