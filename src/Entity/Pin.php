@@ -13,10 +13,10 @@ class Pin
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(type: "integer")]
+    #[ORM\Column(name:"id",type: "integer")]
     private int $id;
 
-    #[ORM\Column(type: "string", length: 6)]
+    #[ORM\Column(name:"pin",type: "string", length: 6)]
     private string $pin;
 
     #[ORM\Embedded(class: ExpirationUtil::class)]
