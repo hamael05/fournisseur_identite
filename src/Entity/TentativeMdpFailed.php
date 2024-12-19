@@ -15,7 +15,7 @@ class TentativeMdpFailed
     private int $id;
 
     #[ORM\Column(name:"nb_tentative_restant",type: "integer")]
-    private int $nbTentativeRestant; //--
+    private int $nbTentativeRestant; 
 
     #[ORM\ManyToOne(targetEntity: Utilisateur::class)]
     #[ORM\JoinColumn(nullable: false)]
@@ -25,7 +25,7 @@ class TentativeMdpFailed
     public function __construct(Utilisateur $user)
     {
             $this->utilisateur = $user;
-            $this->compteurTentatice = self::$defaultNbTentativeRestant-1;
+            $this->nbTentativeRestant = self::$defaultNbTentativeRestant-1;
             $this->isLocked = false;
     }
 

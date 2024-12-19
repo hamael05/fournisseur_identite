@@ -31,7 +31,7 @@ class MailService
         $this->mailer->Host = 'smtp.gmail.com';             // Serveur SMTP de Gmail
         $this->mailer->SMTPAuth = true;                     // Authentification SMTP
         $this->mailer->Username = self::$defaultMailAdress;     // Votre email
-        $this->mailer->Password = 'ajyw yoib doxd pjpt';   // Votre mot de passe d'application
+        $this->mailer->Password = self::$defaultMailerPassword;   // Votre mot de passe d'application
         $this->mailer->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS; // Chiffrement TLS
         $this->mailer->Port = 587;                          // Port SMTP (587 pour TLS)
         
@@ -71,7 +71,7 @@ class MailService
         $this->mailer->Host = 'smtp.gmail.com';             // Serveur SMTP de Gmail
         $this->mailer->SMTPAuth = true;                     // Authentification SMTP
         $this->mailer->Username = self::$defaultMailAdress;     // Votre email
-        $this->mailer->Password = 'ajyw yoib doxd pjpt';   // Votre mot de passe d'application
+        $this->mailer->Password = self::$defaultMailerPassword;   // Votre mot de passe d'application
         $this->mailer->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS; // Chiffrement TLS
         $this->mailer->Port = 587;                          // Port SMTP (587 pour TLS)
         
@@ -79,8 +79,8 @@ class MailService
         $this->mailer->setFrom(self::$defaultMailAdress, self::$defaultMailerName);
         $this->mailer->addAddress($user->getMail()); // Ajouter le destinataire
         $this->mailer->isHTML(true);                          // Format HTML
-        $this->mailer->Subject = 'Confirmez votre inscription'; // Sujet de l'email
-        $this->mailer->Body    = 'Cliquez sur ce lien pour confirmer votre inscription : <a href="http://localhost:8000/confirm/' . $pin->getPin(). '">Confirmer</a>'; // Corps de l'email avec lien
+        $this->mailer->Subject = 'Confirmez votre votre auth avec ce PIN'; // Sujet de l'email
+        $this->mailer->Body    = 'PIN : <h3> ' . $pin->getPin(). ' </h3>'; // Corps de l'email avec lien
         
         return $this->mailer;
     }
@@ -109,7 +109,7 @@ class MailService
         $this->mailer->Host = 'smtp.gmail.com';             // Serveur SMTP de Gmail
         $this->mailer->SMTPAuth = true;                     // Authentification SMTP
         $this->mailer->Username = self::$defaultMailAdress;     // Votre email
-        $this->mailer->Password = 'ajyw yoib doxd pjpt';   // Votre mot de passe d'application
+        $this->mailer->Password = self::$defaultMailerPassword;   // Votre mot de passe d'application
         $this->mailer->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS; // Chiffrement TLS
         $this->mailer->Port = 587;                          // Port SMTP (587 pour TLS)
         
