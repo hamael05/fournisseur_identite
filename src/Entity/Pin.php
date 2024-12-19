@@ -2,13 +2,15 @@
 
 namespace App\Entity;
 
-use App\Util\ExpirationUtil;
+use App\Entity\ExpirationUtil;
 use App\Util\PinGeneratorUtil;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\PinRepository")
  */
+#[ORM\Entity]
+#[ORM\Table(name: "pin")]
 class Pin
 {
     #[ORM\Id]

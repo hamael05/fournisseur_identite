@@ -10,6 +10,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Routing\Annotation\Route;
 use App\Service\MailService;
 
 class AuthController extends AbstractController
@@ -30,6 +31,7 @@ class AuthController extends AbstractController
         $this->entityManager = $entityManager; // Initialiser EntityManagerInterface
     }
 
+    #[Route('/authentification', name: 'authentification', methods: ['POST'])]
     public function authentification(Request $request) : JsonResponse
     {
         try{
@@ -61,7 +63,7 @@ class AuthController extends AbstractController
             }
 
             // verifier que le mot de passe est correct
-            //si mdp incorrect
+            // si mdp incorrect
             if(!$this->authService->checkLogin($utilisateur,$data['mdp'])){
                 // return new JsonResponse([
                 //     'status'=>'error',
@@ -74,10 +76,11 @@ class AuthController extends AbstractController
 
                 
                 //verifier si il y a déjà une tentative_mdp_failed associé à l'user (get la tentative)
-                $tentative = $this->entityManager->getRepository(TentativeMdpFailed::class)->findOneBy(['id_utilisateur' => $utilisateur->getId()]);
+                $tentative = $this->entityManager->getRepository(TentativeMdpFailed::class)->findOneBy(['utilisateur' => $utilisateur->getId()]);
                 if(!$tentative){
                     $tentative = new TentativeMdpFailed($utilisateur);
                     $this->entityManager->persist($tentative);
+                    $this->entityManager->flush();
                     return new JsonResponse([
                         'status'=>'error',
                         'data'=>null,
@@ -92,6 +95,7 @@ class AuthController extends AbstractController
                     $tentative->moinsUnTentativeRestant();
 
                     $this->entityManager->persist($tentative);
+                    $this->entityManager->flush();
 
                      return new JsonResponse([
                     'status'=>'error',
@@ -154,14 +158,6 @@ class AuthController extends AbstractController
                     'message' => $e->getMessage()
                 ]
             ], 500);
-        }
-
-
-
-       
-    }
-
-    
-
-    
+        }  
+    }  
 }
