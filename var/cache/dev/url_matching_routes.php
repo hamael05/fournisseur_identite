@@ -14,8 +14,13 @@ return [
         '/_profiler/phpinfo' => [[['_route' => '_profiler_phpinfo', '_controller' => 'web_profiler.controller.profiler::phpinfoAction'], null, null, null, false, false, null]],
         '/_profiler/xdebug' => [[['_route' => '_profiler_xdebug', '_controller' => 'web_profiler.controller.profiler::xdebugAction'], null, null, null, false, false, null]],
         '/_profiler/open' => [[['_route' => '_profiler_open_file', '_controller' => 'web_profiler.controller.profiler::openAction'], null, null, null, false, false, null]],
+        '/authentification' => [[['_route' => 'authentification', '_controller' => 'App\\Controller\\AuthController::authentification'], null, ['POST' => 0], null, false, false, null]],
+        '/confirmPin' => [[['_route' => 'confirmPin', '_controller' => 'App\\Controller\\AuthController::confirmPin'], null, ['POST' => 0], null, false, false, null]],
         '/inscription' => [[['_route' => 'inscription', '_controller' => 'App\\Controller\\InscriptionController::inscription'], null, ['POST' => 0], null, false, false, null]],
         '/student' => [[['_route' => 'app_student', '_controller' => 'App\\Controller\\StudentController::index'], null, null, null, false, false, null]],
+        '/utilisateur/modifier-nom' => [[['_route' => 'modifier_nom', '_controller' => 'App\\Controller\\UtilisateurController::modifierNom'], null, ['POST' => 0], null, false, false, null]],
+        '/utilisateur/modifier-mdp' => [[['_route' => 'modifier_mdp', '_controller' => 'App\\Controller\\UtilisateurController::modifierMdp'], null, ['POST' => 0], null, false, false, null]],
+        '/utilisateur/modifier-date-naissance' => [[['_route' => 'modifier_date_naissance', '_controller' => 'App\\Controller\\UtilisateurController::modifierDateNaissance'], null, ['POST' => 0], null, false, false, null]],
     ],
     [ // $regexpList
         0 => '{^(?'
@@ -37,7 +42,9 @@ return [
                         .')'
                     .')'
                 .')'
-                .'|/confirm/([^/]++)(*:219)'
+                .'|/sendNewPin/([^/]++)(*:222)'
+                .'|/reinitialiser/([^/]++)(*:253)'
+                .'|/confirm/([^/]++)(*:278)'
             .')/?$}sDu',
     ],
     [ // $dynamicRoutes
@@ -49,7 +56,9 @@ return [
         168 => [[['_route' => '_profiler_exception', '_controller' => 'web_profiler.controller.exception_panel::body'], ['token'], null, null, false, false, null]],
         181 => [[['_route' => '_profiler_exception_css', '_controller' => 'web_profiler.controller.exception_panel::stylesheet'], ['token'], null, null, false, false, null]],
         191 => [[['_route' => '_profiler', '_controller' => 'web_profiler.controller.profiler::panelAction'], ['token'], null, null, false, true, null]],
-        219 => [
+        222 => [[['_route' => 'sendNewPin', '_controller' => 'App\\Controller\\AuthController::sendNewPin'], ['id_utilisateur'], ['GET' => 0], null, false, true, null]],
+        253 => [[['_route' => 'reinitialiser', '_controller' => 'App\\Controller\\AuthController::reinitialiser'], ['id_tentative'], ['GET' => 0], null, false, true, null]],
+        278 => [
             [['_route' => 'confirm', '_controller' => 'App\\Controller\\InscriptionController::confirmInscription'], ['jeton'], ['GET' => 0], null, false, true, null],
             [null, null, null, null, false, false, 0],
         ],
