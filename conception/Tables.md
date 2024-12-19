@@ -15,7 +15,7 @@
 - date_naissance
 
 # pin_authentification 
--id_pin
+- id_pin
 - pin
 - id_utilisateur
 - date_expiration (now + 90s)

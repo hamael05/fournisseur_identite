@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Util\ExpirationUtil;
+use App\Util\PinGeneratorUtil;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -15,8 +16,8 @@ class Pin
     #[ORM\Column(type: "integer")]
     private int $id;
 
-    #[ORM\Column(type: "integer")]
-    private int $pin;
+    #[ORM\Column(type: "string", length: 6)]
+    private string $pin;
 
     #[ORM\Embedded(class: ExpirationUtil::class)]
     private ExpirationUtil $expirationUtil;
@@ -25,14 +26,13 @@ class Pin
     #[ORM\JoinColumn(nullable: false)]
     private Utilisateur $utilisateur;
 
-    public function __construct(int $defaultDureePin)
-    {
-            $duree = $defaultDureePin;
-            $this->expirationUtil = (new ExpirationUtil())
-            ->setDuree($duree)
-            ->calculerDateExpiration(); // Automatiquement définir la date d'expiration
+    private static float $defaultDureePin = 10;
 
-        $this->jeton = TokenGeneratorUtil::generateToken();
+    public function __construct(int $duree = $defaultDureePin)
+    {
+            $this->expirationUtil = (new ExpirationUtil($duree));
+
+            $this->pin = PinGeneratorUtil::generatePin();
     }
 
     public function getId(): int
@@ -40,7 +40,7 @@ class Pin
         return $this->id;
     }
 
-    public function getPin(): int
+    public function getPin(): string
     {
         return $this->pin;
     }
