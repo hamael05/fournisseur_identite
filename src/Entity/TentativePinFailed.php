@@ -33,7 +33,7 @@ class TentativePinFailed
         }
         $this->pin = $pin;
         $this->utilisateur = $user;
-        $this->nbTentativeRestant = self::$defaultNbTentativeRestant-1;
+        $this->nbTentativeRestant = $nbTentativeRestant-1;
     }
 
     // Getters and Setters
