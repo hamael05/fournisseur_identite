@@ -41,7 +41,7 @@ class AuthController extends AbstractController
 
             $data = json_decode($request->getContent(),true);
 
-            if(!isset($data['mail'], $data['mdp'],$data['duree_pin'])){
+            if(!isset($data['mail'], $data['mdp'])){
                 return new JsonResponse([
                     'status'=>'error',
                     'data'=>null,
@@ -51,6 +51,19 @@ class AuthController extends AbstractController
                     ]
                     ],400);
             }
+
+            $nb_tentative_mdp = -1;
+            if(isset($data['nb_tentative_mdp'])){
+                $nb_tentative_mdp = $data['nb_tentative_mdp'];
+            }
+
+            $nb_tentative_pin = -1;
+            if(isset($data['nb_tentative_pin'])){
+                $nb_tentative_pin = $data['nb_tentative_pin'];
+            }
+
+            $duree_pin = -1;
+           
 
             // verifier que l'utilisateur associé à l'email existe
             $utilisateur = $this->entityManager->getRepository(Utilisateur::class)->findOneBy(['mail' => $data['mail']]);
@@ -71,7 +84,8 @@ class AuthController extends AbstractController
                 //verifier si il y a déjà une tentative_mdp_failed associé à l'user (get la tentative)
                 $tentative = $this->entityManager->getRepository(TentativeMdpFailed::class)->findOneBy(['utilisateur' => $utilisateur->getId()]);
                 if(!$tentative){
-                    $tentative = new TentativeMdpFailed($utilisateur);
+                    
+                    $tentative = new TentativeMdpFailed($nb_tentative_mdp,$utilisateur);
                     $this->entityManager->persist($tentative);
                     $this->entityManager->flush();
                     return new JsonResponse([
@@ -119,10 +133,10 @@ class AuthController extends AbstractController
 
             // si le mot de passe est correcte
             // generer un pin 
-            $pin = new Pin($data['duree_pin'],$utilisateur);
+            $pin = new Pin($duree_pin,$utilisateur);
             $this->entityManager->persist($pin);
             
-            $tentative = new TentativePinFailed($pin, $utilisateur);
+            $tentative = new TentativePinFailed($nb_tentative_pin,$pin, $utilisateur);
             $this->entityManager->persist($tentative);
             
             $this->entityManager->flush();
@@ -162,7 +176,7 @@ class AuthController extends AbstractController
         try {
             $data = json_decode($request->getContent(), true);
 
-            if (!isset($data['pin'], $data['id_utilisateur'],$data['duree_jeton'])) {
+            if (!isset($data['pin'], $data['id_utilisateur'])) {
                 return new JsonResponse([
                     'status' => 'error',
                     'data' => null,
@@ -171,6 +185,11 @@ class AuthController extends AbstractController
                         'message' => 'Données manquantes'
                     ]
                 ], 400);
+            }
+
+            $duree_jeton = -1;
+            if(isset($data['duree_jeton'])){
+                $duree_jeton = $data['duree_jeton'];
             }
 
             $pin = $this->entityManager->getRepository(Pin::class)->findOneBy(['utilisateur' => $data['id_utilisateur']]);
@@ -245,7 +264,7 @@ class AuthController extends AbstractController
 
             //raha mbola tsy expiré lay pin
             // tokony mamorona token 
-            $jeton = new Jeton($data['duree_jeton']);
+            $jeton = new Jeton($duree_jeton);
             $this->entityManager->persist($jeton);
             $this->entityManager->flush();
 
@@ -278,12 +297,14 @@ class AuthController extends AbstractController
     public function sendNewPin(string $id_utilisateur){
         try{
             $utilisateur = $this->entityManager->getRepository(Utilisateur::class)->findOneBy(['id' => $id_utilisateur]);
+            $nb_tentative_pin = -1;
+            $duree_pin = -1;
 
             // generer un pin 
-            $pin = new Pin(-1,$utilisateur);
+            $pin = new Pin($duree_pin,$utilisateur);
             $this->entityManager->persist($pin);
 
-            $tentative = new TentativePinFailed($pin, $utilisateur);
+            $tentative = new TentativePinFailed($nb_tentative_pin,$pin, $utilisateur);
             $this->entityManager->persist($tentative);
 
             $this->entityManager->flush();

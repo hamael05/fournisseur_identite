@@ -20,12 +20,15 @@ class TentativeMdpFailed
     #[ORM\ManyToOne(targetEntity: Utilisateur::class)]
     #[ORM\JoinColumn(nullable: false)]
     private Utilisateur $utilisateur;
-    private static $defaultNbTentativeRestant =3;
+    private static int $defaultNbTentativeRestant =3;
 
-    public function __construct(Utilisateur $user)
+    public function __construct(int $nbTentativeRestant , Utilisateur $user)
     {
+        if($nbTentativeRestant == -1){
+            $nbTentativeRestant = self::$defaultNbTentativeRestant;
+        }
             $this->utilisateur = $user;
-            $this->nbTentativeRestant = self::$defaultNbTentativeRestant-1;
+            $this->nbTentativeRestant = $nbTentativeRestant - 1;
     }
 
     // Getters and Setters
