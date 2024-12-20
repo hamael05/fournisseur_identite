@@ -154,6 +154,8 @@ class AuthController extends AbstractController
         }  
     }  
 
+    
+
     #[Route('/confirmPin', name: 'confirmPin', methods: ['POST'])]
     public function confirmPin(Request $request): JsonResponse
     {
