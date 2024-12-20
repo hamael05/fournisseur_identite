@@ -4,6 +4,3 @@ controllers:
         namespace: App\Controller
     type: attribute
 
-nelmio_api_doc:
-    resource: '@NelmioApiDocBundle/Resources/config/routing/annotated_routes.yaml'
-    prefix: /api/doc  # Cette URL sera l'URL d'accès à votre interface Swagger
