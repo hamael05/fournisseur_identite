@@ -6,7 +6,7 @@ use App\Util\TokenGeneratorUtil;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
-#[ORM\Table(name: "jeton_authentificaion")]
+#[ORM\Table(name: "jeton_authentification")]
 class JetonAuthentification
 {
     #[ORM\Id]

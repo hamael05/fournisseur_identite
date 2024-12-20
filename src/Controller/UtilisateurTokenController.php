@@ -11,6 +11,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use App\Util\HasherUtil;
+
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
@@ -24,6 +26,7 @@ class UtilisateurTokenController extends AbstractController
         $this->entityManager = $entityManager;
         $this->utilisateurRepository = $utilisateurRepository;
     }
+    
 
     #[Route('/utilisateurToken/modifier-nom', name: 'modifier_nom', methods: ['POST'])]
     public function modifierNom(Request $request): JsonResponse
@@ -209,6 +212,88 @@ class UtilisateurTokenController extends AbstractController
             return new JsonResponse([
                 'status' => 'success',
                 'message' => 'Date de naissance modifiée avec succès.'
+            ]);
+    
+        } catch (\Exception $e) {
+            return new JsonResponse([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    #[Route('/utilisateurToken/modifier-data-user', name: 'modifier-data-user', methods: ['POST'])]
+    public function modifierDataUser(Request $request): JsonResponse
+    {
+        try {
+            // Récupérer le token dans le header
+            $jeton = $request->headers->get('Authorization');
+            if (!$jeton) {
+                return new JsonResponse([
+                    'status' => 'error',
+                    'message' => 'Token manquant.'
+                ], 401);
+            }
+    
+            // Vérifier le token
+            $token = $this->entityManager->getRepository(Jeton::class)->findOneBy(['jeton' => $jeton]);
+            $jetonAuthentification = $this->entityManager->getRepository(JetonAuthentification::class)->findOneBy(['jeton' => $token->getId()]);
+    
+            if (!$jetonAuthentification) {
+                return new JsonResponse([
+                    'status' => 'error',
+                    'message' => 'Jeton invalide.'
+                ], 401);
+            }
+
+            if ($jetonAuthentification->isExpired()) {
+                return new JsonResponse([
+                    'status' => 'error',
+                    'message' => 'Jeton expiré,veuillez vous reeauthentifier.'
+                ], 401);
+            }
+    
+            // Récupérer l'utilisateur associé
+            $utilisateur = $jetonAuthentification->getUtilisateur();
+    
+            $data = json_decode($request->getContent(), true);
+    
+            if (!isset($data['dateNaissance']) && !isset($data['nom']) && !isset($data['mdp'])) {
+                return new JsonResponse([
+                    'status' => 'error',
+                    'message' => 'Données manquantes.'
+                ], 400);
+            }
+            
+            if (isset($data['dateNaissance']) && $data['dateNaissance'] != '') {
+                try {
+                    $date = new \DateTime($data['dateNaissance']);
+                    // Modifier la date de naissance
+                    $utilisateur->setDateNaissance($date);
+                } catch (\Exception $e) {
+                    return new JsonResponse([
+                        'status' => 'error',
+                        'message' => 'Format de date invalide.'
+                    ], 400);
+                }
+            }
+
+            if (isset($data['nom']) && $data['nom'] != '') {
+                $utilisateur->setNom($data['nom']);
+            }
+
+            if (isset($data['mdp']) && $data['mdp'] != '') {
+                $utilisateur->setMdp(HasherUtil::hashPassword($data['mdp']));
+            }
+    
+            
+    
+            $this->entityManager->persist($utilisateur);
+            $this->entityManager->flush();
+    
+            return new JsonResponse([
+                'status' => 'success',
+                'message' => 'modification effectuée avec succès.'
             ]);
     
         } catch (\Exception $e) {
