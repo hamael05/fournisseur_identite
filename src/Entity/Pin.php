@@ -28,14 +28,14 @@ class Pin
     #[ORM\JoinColumn(nullable: false)]
     private Utilisateur $utilisateur;
 
-    private static float $defaultDureePin = 10;
+    private static float $defaultDureePin = 0.025; //90s
 
-    public function __construct(int $duree , Utilisateur $user)
+    public function __construct(float $duree , Utilisateur $user)
     {
             if($duree == -1){
                 $duree = self::$defaultDureePin;
             }
-            $this->expirationUtil = (new ExpirationUtil($duree));
+            $this->expirationUtil = (new ExpirationUtil(duree: $duree));
 
             $this->pin = PinGeneratorUtil::generatePin();
 

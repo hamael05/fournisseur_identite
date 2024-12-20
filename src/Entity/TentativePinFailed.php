@@ -24,13 +24,16 @@ class TentativePinFailed
     #[ORM\ManyToOne(targetEntity: Utilisateur::class)]
     #[ORM\JoinColumn(nullable: false)]
     private Utilisateur $utilisateur;
-    private static $defaultNbTentativeRestant =3;
+    private static int $defaultNbTentativeRestant =3;
 
-    public function __construct(Pin $pin, Utilisateur $user)
+    public function __construct(int $nbTentativeRestant, Pin $pin, Utilisateur $user)
     {
-            $this->pin = $pin;
-            $this->utilisateur = $user;
-            $this->nbTentativeRestant = self::$defaultNbTentativeRestant-1;
+        if($nbTentativeRestant == -1){
+            $nbTentativeRestant = self::$defaultNbTentativeRestant;
+        }
+        $this->pin = $pin;
+        $this->utilisateur = $user;
+        $this->nbTentativeRestant = self::$defaultNbTentativeRestant-1;
     }
 
     // Getters and Setters
