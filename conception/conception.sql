@@ -64,3 +64,5 @@ CREATE TABLE jeton_inscription(
    UNIQUE(id_jeton),
    FOREIGN KEY(id_jeton) REFERENCES jeton(id)
 );
+
+

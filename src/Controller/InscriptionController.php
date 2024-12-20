@@ -1,5 +1,5 @@
 <?php
-
+//3218
 namespace App\Controller;
 
 use App\Entity\Jeton;
@@ -73,7 +73,7 @@ class InscriptionController extends AbstractController
     
             // Créer un objet Jeton avec durée par défaut
             // $jeton = $this->jetonService->createJeton();
-            $jeton = new Jeton();
+            $jeton = new Jeton(-1);
     
             // Insérer le jeton dans la base
             $this->entityManager->persist($jeton);  // Ajouter l'entité Jeton à la gestion d'entités
