@@ -127,6 +127,10 @@ class ComposerStaticInit0efef0a032594c3d06ddeb0587e93507
             'PHPStan\\PhpDocParser\\' => 21,
             'PHPMailer\\PHPMailer\\' => 20,
         ),
+        'O' => 
+        array (
+            'OpenApi\\' => 8,
+        ),
         'M' => 
         array (
             'Monolog\\' => 8,
@@ -503,6 +507,10 @@ class ComposerStaticInit0efef0a032594c3d06ddeb0587e93507
         'PHPMailer\\PHPMailer\\' => 
         array (
             0 => __DIR__ . '/..' . '/phpmailer/phpmailer/src',
+        ),
+        'OpenApi\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/zircote/swagger-php/src',
         ),
         'Monolog\\' => 
         array (

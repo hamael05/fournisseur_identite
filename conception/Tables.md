@@ -15,7 +15,7 @@
 - date_naissance
 
 # pin_authentification 
--id_pin
+- id_pin
 - pin
 - id_utilisateur
 - date_expiration (now + 90s)
@@ -33,4 +33,9 @@
 - isLocked
 - unlock_time 
 
-
+# jeton_authentification
+- id_utilisateur
+- id_jeton
+- date_insertion
+- duree
+- date_expiration
