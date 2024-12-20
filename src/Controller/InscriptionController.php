@@ -21,6 +21,9 @@ use PHPMailer\PHPMailer\Exception;
 use App\Service\JetonService;
 use App\Service\MailService;
 
+use OpenApi\Annotations as OA;
+use Nelmio\ApiDocBundle\Annotation\Security;
+
 class InscriptionController extends AbstractController
 {
 
@@ -37,6 +40,77 @@ class InscriptionController extends AbstractController
 
 
     #[Route('/inscription', name: 'inscription', methods: ['POST'])]
+    /**
+     * Inscription d'un nouvel utilisateur.
+     *
+     * @OA\Post(
+     *     path="/inscription",
+     *     summary="Inscription d'un nouvel utilisateur",
+     *     description="Crée un nouveau compte utilisateur et envoie un email de confirmation.",
+     *     tags={"Inscription"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             type="object",
+     *             required={"email","motDePasse","nom"},
+     *             @OA\Property(property="nom", type="string", example="Dupont"),
+     *             @OA\Property(property="dateNaissance", type="string", format="date", example="1990-01-01"),
+     *             @OA\Property(property="email", type="string", format="email", example="dupont@example.com"),
+     *             @OA\Property(property="motDePasse", type="string", format="password", example="password123")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Inscription réussie",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="data", type="object", 
+     *                 @OA\Property(property="message", type="string", example="Veuillez vérifier votre e-mail pour confirmer votre inscription.")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Données manquantes ou invalides",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="data", type="null"),
+     *             @OA\Property(property="error", type="object", 
+     *                 @OA\Property(property="code", type="integer", example=400),
+     *                 @OA\Property(property="message", type="string", example="Données manquantes.")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=409,
+     *         description="Email déjà utilisé",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="data", type="null"),
+     *             @OA\Property(property="error", type="object", 
+     *                 @OA\Property(property="code", type="integer", example=409),
+     *                 @OA\Property(property="message", type="string", example="Cet email est déjà utilisé.")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Erreur serveur",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="data", type="null"),
+     *             @OA\Property(property="error", type="object", 
+     *                 @OA\Property(property="code", type="integer", example=500),
+     *                 @OA\Property(property="message", type="string", example="Erreur interne du serveur.")
+     *             )
+     *         )
+     *     )
+     * )
+     */
     public function inscription(Request $request): JsonResponse
     {
         try {
@@ -127,6 +201,73 @@ class InscriptionController extends AbstractController
 
 
     #[Route('/confirm/{jeton}', name: 'confirm', methods: ['GET'])]
+    /**
+     * Confirme l'inscription d'un utilisateur.
+     *
+     * @OA\Get(
+     *     path="/confirm/{jeton}",
+     *     summary="Confirme l'inscription d'un utilisateur",
+     *     description="Valide le jeton d'inscription et crée un nouvel utilisateur.",
+     *     tags={"Inscription"},
+     *     @OA\Parameter(
+     *         name="jeton",
+     *         in="path",
+     *         description="Le jeton d'inscription unique.",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Inscription confirmée avec succès.",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="data", type="object",
+     *                 @OA\Property(property="message", type="string", example="Inscription confirmée avec succès.")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Jeton d'inscription introuvable.",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="data", type="null"),
+     *             @OA\Property(property="error", type="object",
+     *                 @OA\Property(property="code", type="integer", example=404),
+     *                 @OA\Property(property="message", type="string", example="Jeton d'inscription introuvable.")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=410,
+     *         description="Le jeton a expiré.",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="data", type="null"),
+     *             @OA\Property(property="error", type="object",
+     *                 @OA\Property(property="code", type="integer", example=410),
+     *                 @OA\Property(property="message", type="string", example="Le jeton a expiré.")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Erreur serveur interne.",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="data", type="null"),
+     *             @OA\Property(property="error", type="object",
+     *                 @OA\Property(property="code", type="integer", example=500),
+     *                 @OA\Property(property="message", type="string", example="Message d'erreur détaillé.")
+     *             )
+     *         )
+     *     )
+     * )
+     */
     public function confirmInscription(string $jeton): JsonResponse
     {
         try {

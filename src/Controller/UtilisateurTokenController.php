@@ -223,6 +223,61 @@ class UtilisateurTokenController extends AbstractController
     }
 
     #[Route('/utilisateurToken/modifier-data-user', name: 'modifier-data-user', methods: ['POST'])]
+    /**
+     * @OA\Post(
+     *     path="/utilisateurToken/modifier-data-user",
+     *     summary="Modifier les informations de l'utilisateur",
+     *     description="Permet de modifier le nom, le mot de passe et la date de naissance de l'utilisateur authentifié.",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="nom", type="string", example="Dupont"),
+     *             @OA\Property(property="mdp", type="string", example="NouveauMotDePasse123"),
+     *             @OA\Property(property="dateNaissance", type="string", format="date", example="1990-01-01")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Modification effectuée avec succès.",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="Modification effectuée avec succès.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Données manquantes ou format de date invalide.",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="Données manquantes.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Jeton invalide ou expiré.",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="Jeton invalide.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Erreur interne du serveur.",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="Erreur interne du serveur.")
+     *         )
+     *     ),
+     *     security={
+     *         {"bearerAuth": {}}
+     *     }
+     * )
+     */
     public function modifierDataUser(Request $request): JsonResponse
     {
         try {
