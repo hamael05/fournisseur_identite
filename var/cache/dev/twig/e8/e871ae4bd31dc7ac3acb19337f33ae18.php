@@ -676,6 +676,6 @@ class __TwigTemplate_1c769f8a5f5af277e1204c71f9908ac8 extends Template
         </div>
     {% endfor %}
 {% endblock %}
-", "@WebProfiler/Collector/notifier.html.twig", "C:\\S5\\Mr Rojo (web avancé)\\symfony_test\\vide\\vendor\\symfony\\web-profiler-bundle\\Resources\\views\\Collector\\notifier.html.twig");
+", "@WebProfiler/Collector/notifier.html.twig", "E:\\GitHub\\fournisseur_identite\\vendor\\symfony\\web-profiler-bundle\\Resources\\views\\Collector\\notifier.html.twig");
     }
 }
