@@ -15,6 +15,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\MailService;
+use OpenApi\Annotations as OA;
+
 
 class AuthController extends AbstractController
 {
@@ -35,6 +37,61 @@ class AuthController extends AbstractController
     }
 
     #[Route('/authentification', name: 'authentification', methods: ['POST'])]
+    /**
+ * @OA\Post(
+ *     path="/authentification",
+ *     summary="Authentifier un utilisateur et générer un PIN",
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *             type="object",
+ *             required={"mail", "mdp"},  // Indiquer les champs obligatoires ici
+ *             @OA\Property(property="mail", type="string", description="Adresse e-mail de l'utilisateur"),
+ *             @OA\Property(property="mdp", type="string", description="Mot de passe de l'utilisateur"),
+ *             @OA\Property(property="nb_tentative_mdp", type="integer", description="Nombre de tentatives de mot de passe autorisées", example=-1),
+ *             @OA\Property(property="nb_tentative_pin", type="integer", description="Nombre de tentatives de PIN autorisées", example=-1)
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Authentification réussie. Le PIN a été envoyé par e-mail.",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="status", type="string", example="succès"),
+ *             @OA\Property(property="data", type="object",
+ *                 @OA\Property(property="message", type="string", example="Veuillez vérifier votre e-mail pour voir votre pin.")
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=400,
+ *         description="Entrée invalide ou erreur lors de l'authentification.",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="status", type="string", example="erreur"),
+ *             @OA\Property(property="data", type="null"),
+ *             @OA\Property(property="error", type="object",
+ *                 @OA\Property(property="code", type="integer", example=400),
+ *                 @OA\Property(property="message", type="string", example="données manquantes")
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=500,
+ *         description="Erreur interne du serveur.",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="status", type="string", example="erreur"),
+ *             @OA\Property(property="data", type="null"),
+ *             @OA\Property(property="error", type="object",
+ *                 @OA\Property(property="code", type="integer", example=500),
+ *                 @OA\Property(property="message", type="string", example="Une erreur interne est survenue.")
+ *             )
+ *         )
+ *     )
+ * )
+ */
+
     public function authentification(Request $request) : JsonResponse
     {
         try{
@@ -171,6 +228,87 @@ class AuthController extends AbstractController
     
 
     #[Route('/confirmPin', name: 'confirmPin', methods: ['POST'])]
+   /**
+ * @OA\Post(
+ *     path="/confirmPin",
+ *     summary="Valider le PIN de l'utilisateur et générer un jeton.",
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *             type="object",
+ *             required={"pin", "id_utilisateur"}, // Champs obligatoires
+ *             @OA\Property(property="pin", type="string", description="Le PIN saisi par l'utilisateur."),
+ *             @OA\Property(property="id_utilisateur", type="integer", description="L'ID de l'utilisateur."),
+ *             @OA\Property(property="duree_jeton", type="integer", description="Durée optionnelle du jeton en secondes.", example=-1)
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="PIN vérifié et jeton créé avec succès.",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="status", type="string", example="success"),
+ *             @OA\Property(property="data", type="object",
+ *                 @OA\Property(property="message", type="string", example="Vous êtes connecté! Votre jeton a été créé!")
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=400,
+ *         description="PIN invalide ou tentatives épuisées.",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="status", type="string", example="error"),
+ *             @OA\Property(property="data", type="null"),
+ *             @OA\Property(property="error", type="object",
+ *                 @OA\Property(property="code", type="integer", example=400),
+ *                 @OA\Property(property="message", type="string", example="PIN incorrect, il vous reste X tentative(s).")
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=400,
+ *         description="Tentatives épuisées et un nouveau PIN envoyé par email.",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="status", type="string", example="error"),
+ *             @OA\Property(property="data", type="null"),
+ *             @OA\Property(property="error", type="object",
+ *                 @OA\Property(property="code", type="integer", example=400),
+ *                 @OA\Property(property="message", type="string", example="Nombre de tentatives atteint. Veuillez vérifier votre e-mail pour réinitialiser les tentatives.")
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=400,
+ *         description="PIN expiré.",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="status", type="string", example="error"),
+ *             @OA\Property(property="data", type="null"),
+ *             @OA\Property(property="error", type="object",
+ *                 @OA\Property(property="code", type="integer", example=400),
+ *                 @OA\Property(property="message", type="string", example="Le PIN entré est expiré. Veuillez re-essayer de nous authentifier.")
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=500,
+ *         description="Erreur interne du serveur.",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="status", type="string", example="error"),
+ *             @OA\Property(property="data", type="null"),
+ *             @OA\Property(property="error", type="object",
+ *                 @OA\Property(property="code", type="integer", example=500),
+ *                 @OA\Property(property="message", type="string", example="Une erreur interne est survenue.")
+ *             )
+ *         )
+ *     )
+ * )
+ */
+
+
     public function confirmPin(Request $request): JsonResponse
     {
         try {
@@ -293,7 +431,48 @@ class AuthController extends AbstractController
     }
 
 
+
+
     #[Route('/sendNewPin/{id_utilisateur}', name: 'sendNewPin', methods: ['GET'])]
+    /**
+ * @OA\Get(
+ *     path="/sendNewPin/{id_utilisateur}",
+ *     summary="Envoyer un nouvel e-mail de confirmation avec un nouveau PIN.",
+ *     description="Cette méthode génère un nouveau PIN pour un utilisateur et lui envoie un e-mail de confirmation.",
+ *     @OA\Parameter(
+ *         name="id_utilisateur",
+ *         in="path",
+ *         required=true,
+ *         description="L'ID de l'utilisateur pour lequel un nouveau PIN doit être généré.",
+ *         @OA\Schema(type="string")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="PIN généré et e-mail envoyé avec succès.",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="status", type="string", example="success"),
+ *             @OA\Property(property="data", type="object",
+ *                 @OA\Property(property="message", type="string", example="Veuillez vérifier votre e-mail pour confirmer votre inscription.")
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=500,
+ *         description="Erreur interne du serveur.",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="status", type="string", example="error"),
+ *             @OA\Property(property="data", type="null"),
+ *             @OA\Property(property="error", type="object",
+ *                 @OA\Property(property="code", type="integer", example=500),
+ *                 @OA\Property(property="message", type="string", example="Une erreur interne est survenue.")
+ *             )
+ *         )
+ *     )
+ * )
+ */
+
     public function sendNewPin(string $id_utilisateur){
         try{
             $utilisateur = $this->entityManager->getRepository(Utilisateur::class)->findOneBy(['id' => $id_utilisateur]);
@@ -334,6 +513,45 @@ class AuthController extends AbstractController
     }
 
     #[Route('/reinitialiser/{id_tentative}', name: 'reinitialiser', methods: ['GET'])]
+    /**
+ * @OA\Get(
+ *     path="/reinitialiser/{id_tentative}",
+ *     summary="Réinitialiser le nombre de tentatives restantes pour un utilisateur.",
+ *     description="Cette méthode permet de réinitialiser le nombre de tentatives restants pour un utilisateur afin de permettre une nouvelle tentative de connexion.",
+ *     @OA\Parameter(
+ *         name="id_tentative",
+ *         in="path",
+ *         required=true,
+ *         description="L'ID de la tentative de connexion pour laquelle le nombre de tentatives restantes doit être réinitialisé.",
+ *         @OA\Schema(type="string")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Tentatives réinitialisées avec succès.",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="status", type="string", example="success"),
+ *             @OA\Property(property="data", type="object",
+ *                 @OA\Property(property="message", type="string", example="Veuillez retenter pour confirmer votre authentification.")
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=500,
+ *         description="Erreur interne du serveur.",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="status", type="string", example="error"),
+ *             @OA\Property(property="data", type="null"),
+ *             @OA\Property(property="error", type="object",
+ *                 @OA\Property(property="code", type="integer", example=500),
+ *                 @OA\Property(property="message", type="string", example="Une erreur interne est survenue.")
+ *             )
+ *         )
+ *     )
+ * )
+ */
+
     public function reinitialiser (string $id_tentative) {
         try{
             $tentative = $this->entityManager->getRepository(TentativeMdpFailed::class)->findOneBy(['id' => $id_tentative]);
