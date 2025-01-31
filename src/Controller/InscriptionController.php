@@ -269,91 +269,87 @@ class InscriptionController extends AbstractController
      * )
      */
     public function confirmInscription(string $jeton): JsonResponse
-    {
-        try {
-            // Chercher le jeton d'inscription par son jeton
-            $token = $this->entityManager->getRepository(Jeton::class)->findOneBy(['jeton' => $jeton]);
-            $jetonInscription = $this->entityManager->getRepository(JetonInscription::class)->findOneBy(['jeton' => $token->getId()]);
+{
+    try {
+        // Chercher le jeton d'inscription par son jeton
+        $token = $this->entityManager->getRepository(Jeton::class)->findOneBy(['jeton' => $jeton]);
+        $jetonInscription = $this->entityManager->getRepository(JetonInscription::class)->findOneBy(['jeton' => $token->getId()]);
 
-            /*$jetonInscription = $this->entityManager->getRepository(JetonInscription::class)
-            ->createQueryBuilder('ji')
-            ->join('ji.jeton', 'j')
-            ->where('j.jeton = :jeton')
-            ->setParameter('jeton', $jeton)
-            ->getQuery()
-            ->getOneOrNullResult();*/
-
-            if (!$jetonInscription) {
-                return new JsonResponse([
-                    'status' => 'error',
-                    'data' => null,
-                    'error' => [
-                        'code' => 404,
-                        'message' => 'Jeton d\'inscription introuvable.'
-                    ]
-                ], 404);
-            }
-
-            // Vérifier si le jeton est expiré (méthode de l'entité JetonInscription)
-            if ($jetonInscription->isExpired()) {
-                // Supprimer le jeton d'inscription après validation
-            $this->entityManager->remove($jetonInscription);
-            $this->entityManager->flush();
-            
-
-             // Supprimer le jeton correspondant à l'inscription
-            $this->entityManager->persist($token);
-            $this->entityManager->flush();
-                return new JsonResponse([
-                    'status' => 'error',
-                    'data' => null,
-                    'error' => [
-                        'code' => 410,
-                        'message' => 'Le jeton a expiré.'
-                    ]
-                ], 410);
-            }
-
-            // Créer un nouvel utilisateur en utilisant le constructeur de JetonInscription
-            $utilisateur = new Utilisateur(
-                $jetonInscription->getMail(),
-                $jetonInscription->getMdp(),
-                $jetonInscription->getNom(),
-                $jetonInscription->getDateNaissance()
-            );
-
-            // Insérer l'utilisateur dans la base de données
-            $this->entityManager->persist($utilisateur);
-            $this->entityManager->flush();
-
-            // Supprimer le jeton d'inscription après validation
-            $this->entityManager->remove($jetonInscription);
-            $this->entityManager->flush();
-            
-
-             // Supprimer le jeton correspondant à l'inscription
-            $this->entityManager->remove($token);
-            $this->entityManager->flush();
-            
-
-            return new JsonResponse([
-                'status' => 'success',
-                'data' => [
-                    'message' => 'Inscription confirmée avec succès.'
-                ]
-            ], 200);
-
-        } catch (\Exception $e) {
+        if (!$jetonInscription) {
             return new JsonResponse([
                 'status' => 'error',
                 'data' => null,
                 'error' => [
-                    'code' => 500,
-                    'message' => $e->getMessage()
+                    'code' => 404,
+                    'message' => 'Jeton d\'inscription introuvable.'
                 ]
-            ], 500);
+            ], 404);
         }
+
+        // Vérifier si le jeton est expiré
+        if ($jetonInscription->isExpired()) {
+            // Supprimer le jeton d'inscription après validation
+            $this->entityManager->remove($jetonInscription);
+            $this->entityManager->flush();
+
+            $this->entityManager->remove($token);
+            $this->entityManager->flush();
+
+            return new JsonResponse([
+                'status' => 'error',
+                'data' => null,
+                'error' => [
+                    'code' => 410,
+                    'message' => 'Le jeton a expiré.'
+                ]
+            ], 410);
+        }
+
+        // Créer un nouvel utilisateur en utilisant les données du jeton d'inscription
+        $utilisateur = new Utilisateur(
+            $jetonInscription->getMail(),
+            $jetonInscription->getMdp(),
+            $jetonInscription->getNom(),
+            $jetonInscription->getDateNaissance()
+        );
+
+        // Insérer l'utilisateur dans la base de données
+        $this->entityManager->persist($utilisateur);
+        $this->entityManager->flush();
+
+        // Supprimer le jeton d'inscription après validation
+        $this->entityManager->remove($jetonInscription);
+        $this->entityManager->flush();
+
+        // Supprimer le jeton correspondant à l'inscription
+        $this->entityManager->remove($token);
+        $this->entityManager->flush();
+
+        // Retourner les informations de l'utilisateur sans le mot de passe
+        return new JsonResponse([
+            'status' => 'success',
+            'data' => [
+                'message' => 'Inscription confirmée avec succès.',
+                'utilisateur' => [
+                    'email' => $utilisateur->getMail(),
+                    'nom' => $utilisateur->getNom(),
+                    'mdp' => $utilisateur->getMdp(),
+                    'dateNaissance' => $utilisateur->getDateNaissance()->format('Y-m-d')  // Format de date
+                ]
+            ]
+        ], 200);
+
+    } catch (\Exception $e) {
+        return new JsonResponse([
+            'status' => 'error',
+            'data' => null,
+            'error' => [
+                'code' => 500,
+                'message' => $e->getMessage()
+            ]
+        ], 500);
     }
+}
 
     
 }

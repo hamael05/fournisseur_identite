@@ -41,7 +41,7 @@ class MailService
         $this->mailer->addAddress($jetonInscription->getMail()); // Ajouter le destinataire
         $this->mailer->isHTML(true);                          // Format HTML
         $this->mailer->Subject = 'Confirmez votre inscription'; // Sujet de l'email
-        $this->mailer->Body    = 'Cliquez sur ce lien pour confirmer votre inscription : <a href="http://localhost:8000/confirm/' . $jetonInscription->getJeton()->getJeton() . '">Confirmer</a>'; // Corps de l'email avec lien
+        $this->mailer->Body    = 'Cliquez sur ce lien pour confirmer votre inscription : <a href="http://localhost:8080/confirmInscription/' . $jetonInscription->getJeton()->getJeton() . '">Confirmer</a>'; // Corps de l'email avec lien
         
         return $this->mailer;
     }
